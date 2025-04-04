@@ -34,6 +34,13 @@
 #include <rl_tools/nn_models/sequential/persist_code.h>
 
 #include "loop_core_config.h"
+#include <rl_tools/rl/loop/steps/timing/operations_cpu.h>
+#include <rl_tools/rl/loop/steps/extrack/operations_cpu.h>
+#include <rl_tools/rl/loop/steps/checkpoint/operations_cpu.h>
+#include <rl_tools/rl/loop/steps/evaluation/operations_generic.h>
+#include <rl_tools/rl/loop/steps/save_trajectories/operations_cpu.h>
+
+#include <rl_tools/rl/utils/evaluation/operations_cpu.h>
 
 namespace rlt = rl_tools;
 
@@ -98,7 +105,8 @@ namespace RL_TOOLS_MODULE_NAME{
     using LOOP_EVAL_CONFIG = LOOP_CORE_CONFIG;
     #endif
     using LOOP_TIMING_CONFIG = rlt::rl::loop::steps::timing::Config<LOOP_EVAL_CONFIG>;
-    using LOOP_CONFIG = LOOP_TIMING_CONFIG;
+    using LOOP_EXTRACK_CONFIG = rlt::rl::loop::steps::extrack::Config<LOOP_TIMING_CONFIG>;
+    using LOOP_CONFIG = LOOP_EXTRACK_CONFIG;
     using LOOP_STATE = typename LOOP_CONFIG::template State<LOOP_CONFIG>;
 
 
@@ -123,13 +131,18 @@ namespace RL_TOOLS_MODULE_NAME{
         EVALUATION_ACTOR_STATE evaluation_actor_state;
         EVALUATION_ACTOR_BUFFER evaluation_actor_buffer;
         bool evaluation_actor_synced = false;
+        TI seed;
         State(TI seed){
             rlt::malloc(device, static_cast<LOOP_STATE&>(*this));
-            rlt::init(device, static_cast<LOOP_STATE&>(*this), seed);
             rlt::malloc(device, evaluation_actor);
             rlt::malloc(device, evaluation_actor_state);
             rlt::malloc(device, evaluation_actor_buffer);
             evaluation_actor_synced = false;
+            this->seed = seed;
+        }
+        void set_exp_name(const std::string& environment, const std::string& algorithm){
+            static_cast<LOOP_STATE&>(*this).extrack_population_values = environment + "_" + algorithm;
+            rlt::init(device, static_cast<LOOP_STATE&>(*this), this->seed);
         }
         bool step(){
             evaluation_actor_synced = false;
@@ -171,6 +184,23 @@ namespace RL_TOOLS_MODULE_NAME{
             rlt::copy(device, device, rlt::get_actor(*this), evaluation_actor);
             return rlt::save_code(device, evaluation_actor, "policy");
         }
+        std::string export_return(){
+            std::filesystem::create_directories(static_cast<LOOP_STATE&>(*this).extrack_seed_path);
+            std::ofstream return_file(static_cast<LOOP_STATE&>(*this).extrack_seed_path / "return.json");
+            return_file << "[";
+            for(TI i = 0; i < LOOP_CONFIG::EVALUATION_PARAMETERS::N_EVALUATIONS; i++){
+                auto& result = get(static_cast<LOOP_STATE&>(*this).evaluation_results, 0, i);
+                return_file << rlt::json(device, result, LOOP_CONFIG::EVALUATION_PARAMETERS::EVALUATION_INTERVAL * LOOP_CONFIG::ENVIRONMENT_STEPS_PER_LOOP_STEP * i);
+                if(i < LOOP_CONFIG::EVALUATION_PARAMETERS::N_EVALUATIONS - 1){
+                    return_file << ", ";
+                }
+            }
+            return_file << "]";
+            std::ofstream return_file_confirmation(static_cast<LOOP_STATE&>(*this).extrack_seed_path / "return.json.set");
+            return_file_confirmation.close();
+
+            return static_cast<LOOP_STATE&>(*this).extrack_seed_path;
+        }
         ~State(){
             rlt::free(device, static_cast<LOOP_STATE&>(*this));
             rlt::malloc(device, evaluation_actor);
@@ -189,7 +219,9 @@ PYBIND11_MODULE(RL_TOOLS_MODULE_NAME, m){
             .def(pybind11::init<RL_TOOLS_MODULE_NAME::TI>())
             .def("step", &RL_TOOLS_MODULE_NAME::State::step, "Step the loop")
             .def("action", &RL_TOOLS_MODULE_NAME::State::action, "Get the action for the given observation")
-            .def("export_policy", &RL_TOOLS_MODULE_NAME::State::export_policy, "Export the policy to a python file");
+            .def("export_policy", &RL_TOOLS_MODULE_NAME::State::export_policy, "Export the policy to a python file")
+            .def("set_exp_name", &RL_TOOLS_MODULE_NAME::State::set_exp_name, "Set the experiment name")
+            .def("export_return", &RL_TOOLS_MODULE_NAME::State::export_return, "Export the return to a json file");
 #ifdef RL_TOOLS_USE_PYTHON_ENVIRONMENT
     m.def("set_environment_factory", &RL_TOOLS_MODULE_NAME::set_environment_factory, "Set the environment factory");
 #endif

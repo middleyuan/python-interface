@@ -1,0 +1,143 @@
+
+PPO_Params = {
+    "GAMMA": 0.9,
+    "LAMBDA": 0.95,
+    "EPSILON_CLIP": 0.2,
+    "INITIAL_ACTION_STD": 0.5,
+    "ACTION_ENTROPY_COEFFICIENT": 0.01,
+    "ADVANTAGE_EPSILON": 1e-8,
+    "POLICY_KL_EPSILON": 1e-5,
+    "N_WARMUP_STEPS_CRITIC": 0,
+    "N_WARMUP_STEPS_ACTOR": 0,
+    "N_EPOCHS": 8,
+    "ACTOR_HIDDEN_DIM": 32,
+    "ACTOR_NUM_LAYERS": 2,
+    "ACTOR_ACTIVATION_FUNCTION": "RELU",
+    "CRITIC_HIDDEN_DIM": 32,
+    "CRITIC_NUM_LAYERS": 2,
+    "CRITIC_ACTIVATION_FUNCTION": "RELU",
+    "N_ENVIRONMENTS": 8,
+    "ON_POLICY_RUNNER_STEPS_PER_ENV": 128,
+    "BATCH_SIZE": 128,
+    "OPTIMIZER_ALPHA": 1e-4,
+}
+
+PPO_Search_Space = {
+    'categorical': {
+        'N_WARMUP_STEPS_CRITIC': [0, 10, 100, 1000, 10000],
+        'N_WARMUP_STEPS_ACTOR': [0, 10, 100, 1000, 10000],
+        'N_EPOCHS': [1, 2, 3, 4, 5],
+        'ACTOR_HIDDEN_DIM': [8, 16, 32, 64, 128, 256],
+        'ACTOR_NUM_LAYERS': [2, 3, 4, 5],
+        'ACTOR_ACTIVATION_FUNCTION': [1, 2, 3, 4], # 1 RELU 2 TANH 3 FAST_TANH 4 SIGMOID
+        'CRITIC_HIDDEN_DIM': [8, 16, 32, 64, 128, 256],
+        'CRITIC_NUM_LAYERS': [2, 3, 4, 5],
+        'CRITIC_ACTIVATION_FUNCTION': [1, 2, 3, 4], # 1 RELU 2 TANH 3 FAST_TANH 4 SIGMOID
+        'N_ENVIRONMENTS': [1, 2, 4, 8, 16],
+        'ON_POLICY_RUNNER_STEPS_PER_ENV': [64, 128, 256, 512, 1024, 2048],
+        'BATCH_SIZE': [32, 64, 128, 256],
+    },
+    'float': {
+        'GAMMA': [0.8, 1.0],
+        'LAMBDA': [0.8, 1.0],
+        'EPSILON_CLIP': [0.01, 0.4],
+        'INITIAL_ACTION_STD': [0.01, 0.8],
+        'ACTION_ENTROPY_COEFFICIENT': [0.0, 0.05],
+        'ADVANTAGE_EPSILON': [1e-9, 1e-4],
+        'POLICY_KL_EPSILON': [1e-6, 0.1],
+        'OPTIMIZER_ALPHA': [1e-5, 0.5],
+    }
+}
+
+SAC_Params = {
+    'GAMMA': 0.99,
+    'BATCH_SIZE': 100,
+    'CRITIC_TRAINING_INTERVAL': 1,
+    'ACTOR_TRAINING_INTERVAL': 1,
+    'CRITIC_TARGET_UPDATE_INTERVAL': 1,
+    'ACTOR_POLYAK': 0.995,
+    'CRITIC_POLYAK': 0.995,
+    'N_ENVIRONMENTS': 1,
+    'ACTOR_HIDDEN_DIM': 64,
+    'ACTOR_NUM_LAYERS': 3,
+    'ACTOR_ACTIVATION_FUNCTION': "RELU",
+    'CRITIC_HIDDEN_DIM': 64,
+    'CRITIC_NUM_LAYERS': 3,
+    'CRITIC_ACTIVATION_FUNCTION': "RELU",
+    'ALPHA' :  0.5,
+    'LOG_STD_LOWER_BOUND': -20,
+    'LOG_STD_UPPER_BOUND': 2,
+    'OPTIMIZER_ALPHA': 1e-3,
+}
+
+SAC_Search_Space = {
+    'categorical': {
+        'BATCH_SIZE': [50, 100, 200, 400],
+        'CRITIC_TRAINING_INTERVAL': [1, 2, 3, 4],
+        'ACTOR_TRAINING_INTERVAL': [1, 2, 3, 4],
+        'CRITIC_TARGET_UPDATE_INTERVAL': [1, 2, 3, 4],
+        'ACTOR_HIDDEN_DIM': [8, 16, 32, 64, 128, 256],
+        'ACTOR_NUM_LAYERS': [2, 3, 4, 5],
+        'ACTOR_ACTIVATION_FUNCTION': [1, 2, 3, 4], # 1 RELU 2 TANH 3 FAST_TANH 4 SIGMOID
+        'CRITIC_HIDDEN_DIM': [8, 16, 32, 64, 128, 256],
+        'CRITIC_NUM_LAYERS': [2, 3, 4, 5],
+        'CRITIC_ACTIVATION_FUNCTION': [1, 2, 3, 4], # 1 RELU 2 TANH 3 FAST_TANH 4 SIGMOID
+    },
+    'float': {
+        'GAMMA': [0.8, 1.0],
+        'ACTOR_POLYAK': [0.8, 0.999],
+        'CRITIC_POLYAK': [0.8, 0.999],
+        'ALPHA': [0.1, 0.5],
+        'LOG_STD_LOWER_BOUND': [-20, -5],
+        'LOG_STD_UPPER_BOUND': [1, 5],
+        'OPTIMIZER_ALPHA': [1e-5, 0.5],
+    }
+}
+
+TD3_Params = {
+    'GAMMA': 0.99,
+    'ACTOR_BATCH_SIZE': 100,
+    'CRITIC_BATCH_SIZE': 100,
+    'CRITIC_TRAINING_INTERVAL': 1,
+    'ACTOR_TRAINING_INTERVAL': 2,
+    'CRITIC_TARGET_UPDATE_INTERVAL': 2,
+    'ACTOR_TARGET_UPDATE_INTERVAL': 2,
+    'ACTOR_POLYAK': 0.995,
+    'CRITIC_POLYAK': 0.995,
+    'TARGET_NEXT_ACTION_NOISE_STD': 0.2,
+    'TARGET_NEXT_ACTION_NOISE_CLIP': 0.5,
+    'N_ENVIRONMENTS': 1,
+    'ACTOR_HIDDEN_DIM': 64,
+    'ACTOR_NUM_LAYERS': 3,
+    'ACTOR_ACTIVATION_FUNCTION': "RELU",
+    'CRITIC_HIDDEN_DIM': 64,
+    'CRITIC_NUM_LAYERS': 3,
+    'CRITIC_ACTIVATION_FUNCTION': "RELU",
+    'EXPLORATION_NOISE': 0.1,
+    'OPTIMIZER_ALPHA': 1e-3,
+}
+
+TD3_Search_Space = {
+    'categorical': {
+        'BATCH_SIZE': [50, 100, 200, 400],
+        'CRITIC_TRAINING_INTERVAL': [1, 2, 3, 4],
+        'ACTOR_TRAINING_INTERVAL': [1, 2, 3, 4],
+        'CRITIC_TARGET_UPDATE_INTERVAL': [1, 2, 3, 4],
+        'ACTOR_TARGET_UPDATE_INTERVAL': [1, 2, 3, 4],
+        'ACTOR_HIDDEN_DIM': [8, 16, 32, 64, 128, 256],
+        'ACTOR_NUM_LAYERS': [2, 3, 4, 5],
+        'ACTOR_ACTIVATION_FUNCTION': [1, 2, 3, 4], # 1 RELU 2 TANH 3 FAST_TANH 4 SIGMOID
+        'CRITIC_HIDDEN_DIM': [8, 16, 32, 64, 128, 256],
+        'CRITIC_NUM_LAYERS': [2, 3, 4, 5],
+        'CRITIC_ACTIVATION_FUNCTION': [1, 2, 3, 4], # 1 RELU 2 TANH 3 FAST_TANH 4 SIGMOID
+    },
+    'float': {
+        'GAMMA': [0.8, 1.0],
+        'ACTOR_POLYAK': [0.8, 0.999],
+        'CRITIC_POLYAK': [0.8, 0.999],
+        'TARGET_NEXT_ACTION_NOISE_STD': [0.1, 0.5],
+        'TARGET_NEXT_ACTION_NOISE_CLIP': [0.1, 0.5],
+        'EXPLORATION_NOISE': [0.01, 0.3],
+        'OPTIMIZER_ALPHA': [1e-5, 0.5],
+    }
+}

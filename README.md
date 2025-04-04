@@ -74,7 +74,16 @@ pip install rltools[mkl]
 
 # Windows
 
-The RLtools Python interface also works on Windows but MKL is not integrated, yet. Please make sure to install Python from the installer from the Python website and not using the Windows Store Python version. The latter resides in a directory that requires admin privileges even for read access. Due to the just-in-time compilation of RLtools we need to be able to read the Python header and library files. After installing the right Python version the easies way to run RLtools is by opening the cloned folder in Visual Studio Code and launching the preconfigured targets. Make sure to start Visual Studio Code from the Visual Studio Prompt (e.g. `Developer Command Prompt for VS 2022`) by running `code` so that `cl.exe` (MSVC) is available in the environment. 
+The RLtools Python interface also works on Windows but MKL is not integrated, yet. Please make sure to install Python from the installer from the Python website and not using the Windows Store Python version. The latter resides in a directory that requires admin privileges even for read access. Due to the just-in-time compilation of RLtools we need to be able to read the Python header and library files. After installing the right Python version the easies way to run RLtools is by opening the cloned folder in Visual Studio Code and launching the preconfigured targets. Make sure to start Visual Studio Code from the Visual Studio Prompt (e.g. `Developer Command Prompt for VS 2022`) by running `code` so that `cl.exe` (MSVC) is available in the environment.
+
+# Build from Source
+
+```
+git submodule init
+git submodule update
+python -m build
+pip install dist/rltools-2.0.0-py3-none-any.whl --force-reinstall
+```
 
 
 # Acknowledgements
